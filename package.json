@@ -1,0 +1,31 @@
+{
+  "name": "node-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@handlebars/allow-prototype-access": "^1.0.5",
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "connect-mongodb-session": "^3.1.1",
+    "csurf": "^1.11.0",
+    "dotenv": "^16.0.2",
+    "express": "^4.16.4",
+    "express-handlebars": "^3.0.2",
+    "express-session": "^1.17.3",
+    "handlebars": "^4.7.7",
+    "mongoose": "^6.6.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/express-handlebars": "^6.0.0",
+    "nodemon": "^1.18.11"
+  }
+}
