@@ -41,7 +41,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))
 app.use(
   session({
-    secret: 'some secret',
+    secret: process.env.TOKEN_SECRET,
     resave: false,
     saveUninitialized: false,
     store,
@@ -66,16 +66,6 @@ const start = async () => {
     await mongoose.connect(process.env.MONGODB_URL, {
       useNewUrlParser: true,
     })
-
-    //const candidate = await User.findOne()
-    //if (!candidate) {
-    //  const user = new User({
-    //    email: 'test@test.ru',
-    //    name: 'test',
-    //    cart: { items: [] },
-    //  })
-    //  await user.save()
-    //}
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`)
