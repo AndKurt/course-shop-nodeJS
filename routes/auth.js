@@ -3,11 +3,13 @@ const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const { google } = require('googleapis')
 const crypto = require('crypto')
+const { validationResult } = require('express-validator/check')
+require('dotenv').config()
 
 const User = require('../models/user')
 const regEmail = require('../emails/registration')
 const resetPass = require('../emails/resetPass')
-require('dotenv').config()
+const { registerValidators } = require('../utils/validators')
 
 const OAuth2 = google.auth.OAuth2
 const router = new Router()
@@ -89,11 +91,17 @@ router.post('/login', async (req, res) => {
   }
 })
 
-router.post('/register', async (req, res) => {
+router.post('/register', registerValidators, async (req, res) => {
   try {
-    const { name, email, password, repeat } = req.body
+    const { name, email, password, confirm } = req.body
 
     const candidate = await User.findOne({ email })
+
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      req.flash('registerError', errors.array()[0].msg)
+      return res.status(422).redirect('/auth/login#register')
+    }
 
     if (candidate) {
       req.flash('registerError', 'Пользователь с таким Email уже существует')
