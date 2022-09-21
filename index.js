@@ -17,6 +17,7 @@ const ordersRoutes = require('./routes/orders')
 const authRoutes = require('./routes/auth')
 const varMiddleware = require('./middlewares/variables')
 const userMiddleware = require('./middlewares/user')
+const notFoundMiddleware = require('./middlewares/notFound')
 
 require('dotenv').config()
 
@@ -59,6 +60,8 @@ app.use('/courses', coursesRoutes)
 app.use('/card', cardRoutes)
 app.use('/orders', ordersRoutes)
 app.use('/auth', authRoutes)
+
+app.use(notFoundMiddleware)
 
 const PORT = process.env.PORT || 3000
 
