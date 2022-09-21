@@ -9,7 +9,7 @@ require('dotenv').config()
 const User = require('../models/user')
 const regEmail = require('../emails/registration')
 const resetPass = require('../emails/resetPass')
-const { registerValidators } = require('../utils/validators')
+const { loginValidators, registerValidators } = require('../utils/validators')
 
 const OAuth2 = google.auth.OAuth2
 const router = new Router()
@@ -61,29 +61,30 @@ router.get('/logout', async (req, res) => {
   }
 })
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginValidators, async (req, res) => {
   try {
     const { email, password } = req.body
 
-    const candidate = await User.findOne({ email })
-    if (candidate) {
-      const isSamePassword = await bcrypt.compare(password, candidate.password)
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      req.flash('loginError', errors.array()[0].msg)
+      return res.status(422).redirect('/auth/login#login')
+    }
 
-      if (isSamePassword) {
-        req.session.user = candidate
-        req.session.isAuthenticated = true
-        req.session.save((err) => {
-          if (err) {
-            throw err
-          }
-          res.redirect('/')
-        })
-      } else {
-        req.flash('loginError', 'Не верный пароль')
-        res.redirect('/auth/login#login')
-      }
+    const candidate = await User.findOne({ email })
+    const isSamePassword = await bcrypt.compare(password, candidate.password)
+
+    if (isSamePassword) {
+      req.session.user = candidate
+      req.session.isAuthenticated = true
+      req.session.save((err) => {
+        if (err) {
+          throw err
+        }
+        res.redirect('/')
+      })
     } else {
-      req.flash('loginError', 'Указанного пользователя не существует')
+      req.flash('loginError', 'Не верный пароль')
       res.redirect('/auth/login#login')
     }
   } catch (error) {
@@ -95,38 +96,31 @@ router.post('/register', registerValidators, async (req, res) => {
   try {
     const { name, email, password, confirm } = req.body
 
-    const candidate = await User.findOne({ email })
-
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
       req.flash('registerError', errors.array()[0].msg)
       return res.status(422).redirect('/auth/login#register')
     }
 
-    if (candidate) {
-      req.flash('registerError', 'Пользователь с таким Email уже существует')
-      res.redirect('/auth/login#register')
-    } else {
-      const hashPassword = await bcrypt.hash(password, 10)
-      const user = new User({
-        email,
-        name,
-        password: hashPassword,
-        cart: {
-          items: [],
-        },
-      })
-      await user.save()
-      res.redirect('/auth/login#login')
+    const hashPassword = await bcrypt.hash(password, 10)
+    const user = new User({
+      email,
+      name,
+      password: hashPassword,
+      cart: {
+        items: [],
+      },
+    })
+    await user.save()
+    res.redirect('/auth/login#login')
 
-      transporter.sendMail(regEmail(email, name), (err, success) => {
-        if (err) {
-          console.log(err)
-        } else {
-          console.log('Email sent success')
-        }
-      })
-    }
+    transporter.sendMail(regEmail(email, name), (err, success) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log('Email sent success')
+      }
+    })
   } catch (error) {
     console.log(error)
   }
