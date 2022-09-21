@@ -1,6 +1,9 @@
 const { Router } = require('express')
+const { validationResult } = require('express-validator/check')
+
 const Course = require('../models/course')
 const auth = require('../middlewares/auth')
+const { courseValidators } = require('../utils/validators')
 
 const router = Router()
 
@@ -55,9 +58,20 @@ router.post('/remove', auth, async (req, res) => {
   }
 })
 
-router.post('/edit', auth, async (req, res) => {
+router.post('/edit', auth, courseValidators, async (req, res) => {
+  const errors = validationResult(req)
+  const { id } = req.body
+
   try {
-    const { id } = req.body
+    if (!errors.isEmpty()) {
+      const course = await Course.findById(id)
+      return res.status(422).render('course-edit', {
+        title: `Редактировать ${course.title}`,
+        course,
+        error: errors.array()[0].msg,
+      })
+    }
+
     // Remoove ID from body object
     delete req.body.id
     const course = await Course.findById(id)

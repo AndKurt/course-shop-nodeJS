@@ -51,3 +51,9 @@ exports.loginValidators = [
     .normalizeEmail(),
   body('password', 'Не верный пароль').isAlphanumeric().isLength({ min: 2, max: 20 }).trim(),
 ]
+
+exports.courseValidators = [
+  body('title').isLength({ min: 3 }).withMessage('Название должно состоять минимум из 3 символов'),
+  body('price').isNumeric().withMessage('Не верный формат цены. Должны быть только цифры'),
+  body('img', 'Введите корректный url').isURL(),
+]
