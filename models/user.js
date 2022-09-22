@@ -28,6 +28,7 @@ const userSchema = new Schema({
       },
     ],
   },
+  avatarUrl: String,
 })
 
 // стрелочная функция тут работать не будет

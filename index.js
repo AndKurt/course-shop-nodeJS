@@ -19,6 +19,8 @@ const profileRoutes = require('./routes/profile')
 const varMiddleware = require('./middlewares/variables')
 const userMiddleware = require('./middlewares/user')
 const notFoundMiddleware = require('./middlewares/notFound')
+const fileMiddleware = require('./middlewares/file')
+const { use } = require('./routes/home')
 
 require('dotenv').config()
 
@@ -41,6 +43,7 @@ app.set('view engine', 'hbs')
 app.set('views', 'views')
 
 app.use(express.static(path.join(__dirname, 'public')))
+app.use('/images', express.static(path.join(__dirname, 'images')))
 app.use(express.urlencoded({ extended: true }))
 app.use(
   session({
@@ -50,6 +53,7 @@ app.use(
     store,
   })
 )
+app.use(fileMiddleware.single('avatar'))
 app.use(csrf())
 app.use(flash())
 app.use(varMiddleware)
