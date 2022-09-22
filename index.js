@@ -8,6 +8,8 @@ const session = require('express-session')
 const MongoStore = require('connect-mongodb-session')(session)
 const csrf = require('csurf')
 const flash = require('connect-flash')
+const helmet = require('helmet')
+const compression = require('compression')
 
 const homeRoutes = require('./routes/home')
 const cardRoutes = require('./routes/card')
@@ -20,7 +22,6 @@ const varMiddleware = require('./middlewares/variables')
 const userMiddleware = require('./middlewares/user')
 const notFoundMiddleware = require('./middlewares/notFound')
 const fileMiddleware = require('./middlewares/file')
-const { use } = require('./routes/home')
 
 require('dotenv').config()
 
@@ -56,6 +57,19 @@ app.use(
 app.use(fileMiddleware.single('avatar'))
 app.use(csrf())
 app.use(flash())
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", '*', 'http', 'https'],
+        'img-src': ["'self'", 'upload.wikimedia.org', 'cdnjs.cloudflare.com'],
+      },
+    },
+  })
+)
+app.use(compression())
 app.use(varMiddleware)
 app.use(userMiddleware)
 
