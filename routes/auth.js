@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const { google } = require('googleapis')
 const crypto = require('crypto')
-const { validationResult } = require('express-validator/check')
+const { validationResult } = require('express-validator')
 require('dotenv').config()
 
 const User = require('../models/user')
